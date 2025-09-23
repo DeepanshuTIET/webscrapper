@@ -1,0 +1,236 @@
+# Web Scraper to Multiple Storage Formats
+
+A comprehensive Python web scraper that extracts table data from websites and stores it in multiple formats: **SQLite**, **CSV**, and **DuckDB**.
+
+## Features
+
+- 🌐 **Web Scraping**: Extracts HTML tables from any website
+- 📊 **Multiple Storage Formats**: 
+  - SQLite database for relational queries
+  - CSV files for easy data sharing
+  - DuckDB for analytics and fast queries
+- 🧹 **Data Cleaning**: Automatically cleans and processes table data
+- 📈 **Metadata Tracking**: Keeps track of table statistics and creation timestamps
+- 🔧 **Error Handling**: Robust error handling and logging
+- 📁 **Organized Output**: Creates structured directories for different file types
+
+## Installation
+
+1. Install the required dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+## Quick Start
+
+### Basic Usage
+
+```python
+from retriving_html import WebScraperToStorage
+
+# Create scraper instance
+url = "https://www.screener.in/company/TCS/consolidated/"
+scraper = WebScraperToStorage(url, "TCS")
+
+# Run complete pipeline
+scraper.run_complete_pipeline()
+```
+
+### Advanced Usage
+
+```python
+# For more control over the process
+scraper = WebScraperToStorage(url, "COMPANY_NAME")
+
+# Step by step execution
+if scraper.fetch_html():
+    if scraper.extract_tables():
+        print(f"Found {len(scraper.tables)} tables")
+        
+        # Save to specific formats
+        scraper.save_to_csv()        # Save as CSV files
+        scraper.save_to_sqlite()     # Save to SQLite database
+        scraper.save_to_duckdb()     # Save to DuckDB database
+        
+        # Access extracted data
+        for table_info in scraper.tables:
+            df = table_info['dataframe']
+            print(f"Table has {len(df)} rows and {len(df.columns)} columns")
+```
+
+## File Structure
+
+After running the scraper, your files will be organized as:
+
+```
+data/
+├── csv/
+│   ├── COMPANY_table_0.csv
+│   ├── COMPANY_table_1.csv
+│   └── COMPANY_tables_summary.csv
+├── databases/
+│   ├── COMPANY_tables.db      (SQLite)
+│   └── COMPANY_tables.duckdb  (DuckDB)
+└── COMPANY.html              (Raw HTML)
+```
+
+## Querying Your Data
+
+### SQLite Queries
+
+```python
+import sqlite3
+import pandas as pd
+
+conn = sqlite3.connect("data/databases/TCS_tables.db")
+
+# View available tables
+metadata = pd.read_sql_query("SELECT * FROM tables_metadata", conn)
+print(metadata)
+
+# Query specific table
+data = pd.read_sql_query("SELECT * FROM TCS_table_0 LIMIT 10", conn)
+print(data)
+
+conn.close()
+```
+
+### DuckDB Queries
+
+```python
+import duckdb
+
+conn = duckdb.connect("data/databases/TCS_tables.duckdb")
+
+# View available tables
+metadata = conn.execute("SELECT * FROM tables_metadata").fetchdf()
+print(metadata)
+
+# Query with analytics
+result = conn.execute("""
+    SELECT COUNT(*) as row_count, 
+           COUNT(DISTINCT column_name) as unique_values
+    FROM TCS_table_0
+""").fetchdf()
+
+conn.close()
+```
+
+### CSV Analysis
+
+```python
+import pandas as pd
+
+# Read summary
+summary = pd.read_csv("data/csv/TCS_tables_summary.csv")
+print(summary)
+
+# Read specific table
+table_data = pd.read_csv("data/csv/TCS_table_0.csv")
+print(table_data.describe())
+```
+
+## Examples
+
+### Example 1: Financial Data Scraping
+```python
+# TCS financial data
+url = "https://www.screener.in/company/TCS/consolidated/"
+scraper = WebScraperToStorage(url, "TCS")
+scraper.run_complete_pipeline()
+```
+
+### Example 2: Multiple Companies
+```python
+companies = [
+    ("TCS", "https://www.screener.in/company/TCS/consolidated/"),
+    ("RELIANCE", "https://www.screener.in/company/RELIANCE/consolidated/"),
+    ("INFY", "https://www.screener.in/company/INFY/consolidated/")
+]
+
+for company_name, url in companies:
+    scraper = WebScraperToStorage(url, company_name)
+    scraper.run_complete_pipeline()
+    print(f"Completed scraping for {company_name}")
+```
+
+## Class Methods
+
+### `WebScraperToStorage`
+
+#### Constructor
+- `__init__(url, company_name)`: Initialize scraper with target URL and company name
+
+#### Main Methods
+- `run_complete_pipeline()`: Execute the full scraping and storage pipeline
+- `fetch_html()`: Download HTML content from the URL
+- `extract_tables()`: Parse HTML and extract all tables
+- `save_to_csv()`: Export tables to CSV format
+- `save_to_sqlite()`: Store tables in SQLite database
+- `save_to_duckdb()`: Store tables in DuckDB database
+
+#### Utility Methods
+- `clean_dataframe(df)`: Clean and prepare DataFrame for storage
+
+## Dependencies
+
+- `requests`: Web scraping
+- `beautifulsoup4`: HTML parsing
+- `pandas`: Data manipulation
+- `sqlite3`: SQLite database (built-in)
+- `duckdb`: DuckDB analytics database
+- `numpy`: Numerical operations
+- `lxml` & `html5lib`: HTML parsing backends
+
+## Error Handling
+
+The scraper includes comprehensive error handling:
+
+- **Network errors**: Handles connection timeouts and HTTP errors
+- **Parsing errors**: Skips malformed tables and continues processing
+- **Storage errors**: Reports database connection and file writing issues
+- **Data validation**: Checks for empty tables and invalid data
+
+## Output Formats
+
+### CSV Files
+- Individual CSV file for each table
+- Summary CSV with metadata about all tables
+- UTF-8 encoding for international characters
+
+### SQLite Database
+- One table per scraped HTML table
+- Metadata table with table statistics
+- SQL-compatible for complex queries
+
+### DuckDB Database
+- High-performance analytics database
+- Same structure as SQLite but optimized for analytics
+- Excellent for data science workflows
+
+## Tips for Best Results
+
+1. **Check robots.txt**: Ensure you're allowed to scrape the target website
+2. **Add delays**: For multiple requests, add delays to be respectful
+3. **Handle dynamic content**: This scraper works best with static HTML tables
+4. **Validate data**: Always check the extracted data for accuracy
+5. **Monitor performance**: Large tables may require additional memory
+
+## Troubleshooting
+
+### Common Issues
+
+1. **No tables found**: Website might use JavaScript to load tables
+2. **Permission denied**: Check file permissions in the data directory
+3. **Import errors**: Install missing dependencies with `pip install -r requirements.txt`
+4. **Memory issues**: Large tables might require chunked processing
+
+### Getting Help
+
+- Check the console output for detailed error messages
+- Verify the website structure hasn't changed
+- Ensure all dependencies are installed correctly
+
+## License
+
+This project is open source and available for educational and commercial use.

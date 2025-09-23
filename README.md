@@ -1,6 +1,12 @@
 # Web Scraper to Multiple Storage Formats
 
+[![GitHub Repository](https://img.shields.io/badge/GitHub-DeepanshuTIET%2Fwebscrapper-blue?logo=github)](https://github.com/DeepanshuTIET/webscrapper)
+[![Python](https://img.shields.io/badge/Python-3.7%2B-blue?logo=python)](https://python.org)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+
 A comprehensive Python web scraper that extracts table data from websites and stores it in multiple formats: **SQLite**, **CSV**, and **DuckDB**.
+
+🔗 **Repository**: [https://github.com/DeepanshuTIET/webscrapper](https://github.com/DeepanshuTIET/webscrapper)
 
 ## Features
 
@@ -16,9 +22,20 @@ A comprehensive Python web scraper that extracts table data from websites and st
 
 ## Installation
 
-1. Install the required dependencies:
+1. **Clone the repository:**
+```bash
+git clone https://github.com/DeepanshuTIET/webscrapper.git
+cd webscrapper
+```
+
+2. **Install the required dependencies:**
 ```bash
 pip install -r requirements.txt
+```
+
+3. **Run the scraper:**
+```bash
+python retriving_html.py
 ```
 
 ## Quick Start
@@ -132,6 +149,8 @@ print(table_data.describe())
 
 ## Examples
 
+Check out the [`example_usage.py`](https://github.com/DeepanshuTIET/webscrapper/blob/main/example_usage.py) and [`query_databases.py`](https://github.com/DeepanshuTIET/webscrapper/blob/main/query_databases.py) files for detailed examples.
+
 ### Example 1: Financial Data Scraping
 ```python
 # TCS financial data
@@ -230,7 +249,42 @@ The scraper includes comprehensive error handling:
 - Check the console output for detailed error messages
 - Verify the website structure hasn't changed
 - Ensure all dependencies are installed correctly
+- Open an [issue on GitHub](https://github.com/DeepanshuTIET/webscrapper/issues) if you need help
+
+## Project Structure
+
+```
+webscrapper/
+├── retriving_html.py      # Main scraper class
+├── example_usage.py       # Usage examples
+├── query_databases.py     # Database querying examples
+├── requirements.txt       # Dependencies
+├── .gitignore            # Git ignore rules
+├── README.md             # This file
+└── data/                 # Output directory (created after running)
+    ├── csv/              # CSV files
+    ├── databases/        # SQLite and DuckDB files
+    └── *.html           # Raw HTML files
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## Author
+
+**Deepanshu** - [DeepanshuTIET](https://github.com/DeepanshuTIET)
 
 ## License
 
-This project is open source and available for educational and commercial use.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Thanks to the pandas team for the excellent `read_html()` function
+- Beautiful Soup for making HTML parsing so easy
+- DuckDB team for creating such a fast analytics database

@@ -16,8 +16,15 @@ A comprehensive Python web scraper that extracts table data from websites and st
   - CSV files for easy data sharing
   - DuckDB for analytics and fast queries
 - 🧹 **Data Cleaning**: Automatically cleans and processes table data
-- 📈 **Metadata Tracking**: Keeps track of table statistics and creation timestamps
-- 🔧 **Error Handling**: Robust error handling and logging
+- 🎯 **Intelligent Data Type Detection**: Automatically detects and converts data types
+  - **Numeric values**: Integers and floats with thousands separators
+  - **Currency values**: $, ₹, €, £, ¥ symbols and INR/USD prefixes
+  - **Percentage values**: Converts % to decimal format
+  - **Date/DateTime**: Various date formats (YYYY-MM-DD, Jan 2023, etc.)
+  - **Boolean values**: Yes/No, True/False, Y/N, 1/0, etc.
+  - **Proper database schemas**: Uses appropriate column types (INTEGER, REAL, BOOLEAN, DATETIME)
+- 📈 **Metadata Tracking**: Keeps track of table statistics, column types, and creation timestamps
+- 🔧 **Error Handling**: Robust error handling and logging with fallback to string types
 - 📁 **Organized Output**: Creates structured directories for different file types
 
 ## Installation
@@ -90,6 +97,73 @@ data/
 │   └── COMPANY_tables.duckdb  (DuckDB)
 └── COMPANY.html              (Raw HTML)
 ```
+
+## Automatic Data Type Detection
+
+The enhanced web scraper now automatically detects and converts data types, making your scraped data immediately ready for analysis and mathematical operations.
+
+### Supported Data Types
+
+1. **Numeric Values**
+   - Integers: `"123"`, `"1,250"`, `"-45"`
+   - Floats: `"123.45"`, `"1,250.75"`, `"-45.5"`
+   - Handles thousands separators and negative values
+
+2. **Currency Values**
+   - Symbol prefixes: `"$1,250.50"`, `"₹50,000"`, `"€1.200,50"`
+   - Symbol suffixes: `"1250.50$"`, `"50000₹"`
+   - Currency codes: `"USD 1,250.50"`, `"INR 50,000"`
+
+3. **Percentage Values**
+   - Standard format: `"15%"`, `"10.5%"`, `"-2.3%"`
+   - Converted to decimal: `0.15`, `0.105`, `-0.023`
+
+4. **Date/DateTime Values**
+   - ISO format: `"2023-01-15"`, `"2023/01/15"`
+   - Month names: `"Jan 2023"`, `"January 15, 2023"`
+   - Various separators: `"15-Jan-2023"`, `"15 Jan 2023"`
+
+5. **Boolean Values**
+   - Text: `"Yes"/"No"`, `"True"/"False"`, `"Y"/"N"`
+   - Numeric: `"1"/"0"`
+   - Status: `"On"/"Off"`, `"Enabled"/"Disabled"`
+
+### Before and After Example
+
+```python
+# Original scraped data (all strings)
+original_data = {
+    'Product': ['Product A', 'Product B'],
+    'Price': ['$1,250.50', '$850.75'],
+    'Discount': ['15%', '10%'],
+    'Active': ['Yes', 'No'],
+    'Launch_Date': ['Jan 2023', 'Mar 2022']
+}
+
+# After automatic conversion
+# Price: float64 [1250.50, 850.75]
+# Discount: float64 [0.15, 0.10] 
+# Active: bool [True, False]
+# Launch_Date: datetime64 [2023-01-27, 2022-03-27]
+
+# Now you can perform mathematical operations:
+total_price = df['Price'].sum()  # 2101.25
+avg_discount = df['Discount'].mean()  # 0.125 (12.5%)
+active_products = df['Active'].sum()  # 1
+```
+
+### Database Schema Benefits
+
+With proper data type detection, your databases now use appropriate column types:
+
+- **SQLite**: `INTEGER`, `REAL`, `BOOLEAN`, `DATETIME`, `TEXT`
+- **DuckDB**: `BIGINT`, `DOUBLE`, `BOOLEAN`, `TIMESTAMP`, `VARCHAR`
+
+This enables:
+- Mathematical operations and aggregations
+- Proper sorting and filtering
+- Better query performance
+- Accurate data analysis
 
 ## Querying Your Data
 
@@ -199,6 +273,7 @@ for company_name, url in companies:
 - `sqlite3`: SQLite database (built-in)
 - `duckdb`: DuckDB analytics database
 - `numpy`: Numerical operations
+- `python-dateutil`: Advanced date parsing for type detection
 - `lxml` & `html5lib`: HTML parsing backends
 
 ## Error Handling
